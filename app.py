@@ -16,11 +16,11 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 # Conexión a la base de datos con XAMPP
 def conectar_db():
     return mysql.connector.connect(
-        host="localhost",
+        host="centerbeam.proxy.rlwy.net",
         user="root",
-        password="",
-        database="recetas_db",
-        port = "3310"
+        password="IWYFWwjaMTNNChejrLNgdQUkfBHEASir",
+        database="railway",
+        port = "25323"
     )
 
 UPLOAD_FOLDER = 'uploads'
