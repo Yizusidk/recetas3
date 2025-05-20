@@ -107,25 +107,27 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-        db = conectar_db()
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-        usuario = cursor.fetchone()
-        db.close()
+        try:
+            db = conectar_db()
+            cursor = db.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+            usuario = cursor.fetchone()
+            db.close()
 
-        if usuario and check_password_hash(usuario['password'], password):
-            # Guarda el ID y el nombre
-            session['usuario_id'] = usuario['id']
-            session['usuario'] = usuario['nombre'] 
-            return redirect('/dashboard')
+            if usuario and check_password_hash(usuario['password'], password):
+                session['usuario_id'] = usuario['id']
+                session['usuario'] = usuario['nombre']
+                return redirect('/dashboard')
+
+            return render_template('login.html', error="Credenciales inválidas")
         
-        return render_template('login.html', error="Credenciales inválidas")
+        except Exception as e:
+            return f"Ocurrió un error en el servidor: {str(e)}"
 
     return render_template('login.html')
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
