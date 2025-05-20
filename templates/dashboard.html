@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi perfil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f1f1f1;
+    }
+    .profile-box {
+      max-width: 600px;
+      margin: 60px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+    }
+    .btn-purple {
+      background-color: #6c4fad;
+      color: white;
+      border: none;
+    }
+    <style>
+      body {
+        background-color: #f1f1f1;
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 120px;
+        background-color: white;
+        padding-top: 80px;
+      }
+      .sidebar button {
+        width: 100%;
+        border: none;
+        background: none;
+        padding: 10px;
+        font-size: 14px;
+      }
+      .topbar {
+        margin-left: 120px;
+        padding: 20px;
+      }
+      .search-box {
+        background-color: white;
+        border-radius: 20px;
+        padding: 8px 20px;
+      }
+      .categoria-btn {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px;
+        background-color: white;
+        min-width: 120px;
+        text-align: center;
+      }
+      .btn-publicar {
+        background-color: #a18cd1;
+        border-radius: 20px;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+      }
+      .btn-perfil {
+        background-color: #6c4fad;
+        border-radius: 20px;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+      }
+    </style>
+  </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar text-center">
+      <button>
+        <img src="https://i.pinimg.com/474x/5d/fb/70/5dfb70fe26266074c99911272330eb03.jpg" alt="logo" width="80"><br>
+        <span style="font-weight: bold; font-family: 'Georgia', serif;">FOODILIK</span>
+      </button>
+      <hr>
+      <button><a href="{{ url_for('index') }}">Inicio</a></button>
+      <button><a href="{{ url_for('dashboard') }}">Colección</a></button>
+      <button><a href="{{ url_for('estadisticas') }}">Estadísticas</a></button>
+    </div>
+  
+    <!-- Contenido principal -->
+    <div class="topbar">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="search-box flex-grow-1 me-3">
+          <input type="text" class="form-control border-0 bg-transparent" placeholder="Buscar recetas...">
+        </div>
+        {% if session.get('usuario') %}
+
+        <a href="{{ url_for('perfil') }}">
+          <button class="btn-perfil me-2">Perfil</button>
+        </a>
+      
+        <a href="{{ url_for('publicar') }}">
+          <button class="btn-publicar">✏️ Publicar</button>
+        </a>
+      
+        <a href="{{ url_for('logout') }}">
+          <button class="btn btn-outline-danger ms-2">Logout</button>
+        </a>
+      {% else %}
+
+        <a href="{{ url_for('login') }}">
+          <button class="btn btn-outline-primary">Iniciar sesión</button>
+        </a>
+      {% endif %}
+      
+        
+      </div>
+
+  <div class="profile-box">
+
+<h3 class="text-center mb-4">Bienvenido, {{ nombre_usuario }}</h3>
+<p><strong>Email:</strong> {{ email }}</p>
+
+
+
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('mis_recetas') }}" class="btn btn-purple me-2">Mis Recetas</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar sesión</a>
+    </div>
+  </div>
+
+</body>
+</html>
