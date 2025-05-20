@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
-app.secret_key = 'clave_secreta'
+
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
 # Conexión a la base de datos con XAMPP
