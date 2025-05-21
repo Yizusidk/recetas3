@@ -255,14 +255,27 @@ def mis_recetas():
 def detalle_receta(receta_id):
     db = conectar_db()
     cursor = db.cursor(dictionary=True)
+
     cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
     receta = cursor.fetchone()
-    db.close()
-    
+
     if receta is None:
+        db.close()
         return "Receta no encontrada", 404
-    
-    return render_template('detalle_receta.html', receta=receta)
+
+    # Obtener comentarios con nombres de usuario
+    cursor.execute("""
+        SELECT c.contenido, c.calificacion, u.nombre AS usuario_nombre
+        FROM comentarios c
+        JOIN usuarios u ON c.usuario_id = u.id
+        WHERE c.receta_id = %s
+        ORDER BY c.fecha DESC
+    """, (receta_id,))
+    comentarios = cursor.fetchall()
+
+    db.close()
+    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios)
+
 
 @app.route('/estadisticas')
 def estadisticas():
@@ -291,6 +304,28 @@ def buscar():
 def logout():
     session.clear()
     return redirect('/login')
+
+@app.route('/comentario/<int:receta_id>', methods=['POST'])
+def agregar_comentario(receta_id):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    contenido = request.form['contenido']
+    calificacion = int(request.form['calificacion'])
+    usuario_id = session['usuario_id']
+
+    db = conectar_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        INSERT INTO comentarios (usuario_id, receta_id, contenido, calificacion)
+        VALUES (%s, %s, %s, %s)
+    """, (usuario_id, receta_id, contenido, calificacion))
+    db.commit()
+    db.close()
+
+    return redirect(url_for('detalle_receta', receta_id=receta_id))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
