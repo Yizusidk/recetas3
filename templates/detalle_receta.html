@@ -20,13 +20,14 @@
         <h1 class="mb-3">{{ receta.titulo }}</h1>
 
         {% if session['usuario_id'] %}
-<form action="{{ url_for('toggle_favorito', receta_id=receta.id) }}" method="POST" class="mb-3">
-    {% if es_favorita %}
-        <button type="submit" class="btn btn-warning">★ Quitar de favoritos</button>
-    {% else %}
-        <button type="submit" class="btn btn-outline-warning">☆ Guardar en favoritos</button>
-    {% endif %}
-</form>
+
+{% if session['usuario_id'] %}
+<button id="btn-favorito" data-id="{{ receta.id }}" class="btn {% if es_favorita %}btn-warning{% else %}btn-outline-warning{% endif %}">
+    {% if es_favorita %}★ Quitar de favoritos{% else %}☆ Guardar en favoritos{% endif %}
+</button>
+{% endif %}
+
+
 {% endif %}
 
 
@@ -73,6 +74,39 @@
     <li class="list-group-item">No hay comentarios aún.</li>
     {% endfor %}
 </ul>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('btn-favorito');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const recetaId = btn.getAttribute('data-id');
+
+            fetch(`/toggle_favorito/${recetaId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.estado === 'agregado') {
+                    btn.classList.remove('btn-outline-warning');
+                    btn.classList.add('btn-warning');
+                    btn.textContent = '★ Quitar de favoritos';
+                } else if (data.estado === 'removido') {
+                    btn.classList.remove('btn-warning');
+                    btn.classList.add('btn-outline-warning');
+                    btn.textContent = '☆ Guardar en favoritos';
+                }
+            })
+            .catch(err => {
+                console.error('Error al actualizar favorito:', err);
+            });
+        });
+    }
+});
+</script>
 
 
 </body>

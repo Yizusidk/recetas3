@@ -335,25 +335,35 @@ def agregar_comentario(receta_id):
 
     return redirect(url_for('detalle_receta', receta_id=receta_id))
 
-@app.route('/favorito/<int:receta_id>', methods=['POST'])
+@app.route('/toggle_favorito/<int:receta_id>', methods=['POST'])
 def toggle_favorito(receta_id):
     if 'usuario_id' not in session:
-        return redirect(url_for('login'))
+        return jsonify({'error': 'No autorizado'}), 403
 
+    usuario_id = session['usuario_id']
     db = conectar_db()
     cursor = db.cursor()
 
-    cursor.execute("SELECT * FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (session['usuario_id'], receta_id))
-    existe = cursor.fetchone()
+    cursor.execute("SELECT id FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (usuario_id, receta_id))
+    favorito = cursor.fetchone()
 
-    if existe:
-        cursor.execute("DELETE FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (session['usuario_id'], receta_id))
-    else:
-        cursor.execute("INSERT INTO favoritos (usuario_id, receta_id) VALUES (%s, %s)", (session['usuario_id'], receta_id))
+    try:
+        if favorito:
+            cursor.execute("DELETE FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (usuario_id, receta_id))
+            db.commit()
+            estado = 'removido'
+        else:
+            cursor.execute("INSERT INTO favoritos (usuario_id, receta_id) VALUES (%s, %s)", (usuario_id, receta_id))
+            db.commit()
+            estado = 'agregado'
+    except Exception as e:
+        db.rollback()
+        print("Error:", e)
+        return jsonify({'error': 'Error interno'}), 500
+    finally:
+        db.close()
 
-    db.commit()
-    db.close()
-    return redirect(url_for('detalle_receta', receta_id=receta_id))
+    return jsonify({'estado': estado})
 
 
 @app.route('/favoritos')
