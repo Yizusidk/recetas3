@@ -256,6 +256,7 @@ def detalle_receta(receta_id):
     db = conectar_db()
     cursor = db.cursor(dictionary=True)
 
+    # Obtener receta
     cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
     receta = cursor.fetchone()
 
@@ -273,8 +274,17 @@ def detalle_receta(receta_id):
     """, (receta_id,))
     comentarios = cursor.fetchall()
 
+    # Verificar si es favorita (solo si el usuario está logueado)
+    es_favorita = False
+    if 'usuario_id' in session:
+        cursor.execute("""
+            SELECT 1 FROM favoritos
+            WHERE usuario_id = %s AND receta_id = %s
+        """, (session['usuario_id'], receta_id))
+        es_favorita = cursor.fetchone() is not None
+
     db.close()
-    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios)
+    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios, es_favorita=es_favorita)
 
 
 @app.route('/estadisticas')
@@ -324,6 +334,27 @@ def agregar_comentario(receta_id):
     db.close()
 
     return redirect(url_for('detalle_receta', receta_id=receta_id))
+
+@app.route('/favorito/<int:receta_id>', methods=['POST'])
+def toggle_favorito(receta_id):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    db = conectar_db()
+    cursor = db.cursor()
+
+    cursor.execute("SELECT * FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (session['usuario_id'], receta_id))
+    existe = cursor.fetchone()
+
+    if existe:
+        cursor.execute("DELETE FROM favoritos WHERE usuario_id = %s AND receta_id = %s", (session['usuario_id'], receta_id))
+    else:
+        cursor.execute("INSERT INTO favoritos (usuario_id, receta_id) VALUES (%s, %s)", (session['usuario_id'], receta_id))
+
+    db.commit()
+    db.close()
+    return redirect(url_for('detalle_receta', receta_id=receta_id))
+
 
 
 
