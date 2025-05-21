@@ -65,6 +65,17 @@
       <h3>Perfil de {{ usuario['nombre'] }}</h3>
       <p><strong>Email:</strong> {{ usuario['email'] }}</p>
 
+      {% if session['usuario_id'] and session['usuario_id'] != usuario['id'] %}
+  <form action="{{ url_for('seguir_usuario' if not es_seguido else 'dejar_de_seguir', seguido_id=usuario['id']) }}" method="POST" style="margin-top: 10px;">
+    {% if es_seguido %}
+      <button type="submit" class="btn btn-danger">Dejar de seguir</button>
+    {% else %}
+      <button type="submit" class="btn btn-success">Seguir</button>
+    {% endif %}
+  </form>
+{% endif %}
+
+
 
       <a href="{{ url_for('index') }}">
         <button class="btn-publicar">Regresar a Inicio</button>

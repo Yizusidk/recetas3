@@ -387,6 +387,82 @@ def ver_favoritos():
 
     return render_template('favoritos.html', recetas=recetas_favoritas)
 
+@app.route('/seguir/<int:seguido_id>', methods=['POST'])
+def seguir_usuario(seguido_id):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    seguidor_id = session['usuario_id']
+    if seguidor_id == seguido_id:
+        return "No puedes seguirte a ti mismo", 400
+
+    db = conectar_db()
+    cursor = db.cursor()
+
+    # Insertar solo si no existe ya
+    try:
+        cursor.execute("""
+            INSERT INTO seguimientos (seguidor_id, seguido_id)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE fecha = CURRENT_TIMESTAMP
+        """, (seguidor_id, seguido_id))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return f"Error al seguir: {e}", 500
+    finally:
+        db.close()
+
+    return redirect(request.referrer or url_for('dashboard'))
+
+
+@app.route('/dejar_de_seguir/<int:seguido_id>', methods=['POST'])
+def dejar_de_seguir(seguido_id):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    seguidor_id = session['usuario_id']
+
+    db = conectar_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute("""
+            DELETE FROM seguimientos WHERE seguidor_id = %s AND seguido_id = %s
+        """, (seguidor_id, seguido_id))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return f"Error al dejar de seguir: {e}", 500
+    finally:
+        db.close()
+
+    return redirect(request.referrer or url_for('dashboard'))
+
+@app.route('/usuario/<int:usuario_id>')
+def ver_perfil(usuario_id):
+    db = conectar_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id,))
+    usuario = cursor.fetchone()
+
+    if usuario is None:
+        db.close()
+        return "Usuario no encontrado", 404
+
+    es_seguido = False
+    if 'usuario_id' in session:
+        cursor.execute("""
+            SELECT 1 FROM seguimientos
+            WHERE seguidor_id = %s AND seguido_id = %s
+        """, (session['usuario_id'], usuario_id))
+        es_seguido = cursor.fetchone() is not None
+
+    db.close()
+    return render_template('perfil.html', usuario=usuario, es_seguido=es_seguido)
+
+
 
 
 if __name__ == '__main__':
