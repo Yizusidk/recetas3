@@ -33,5 +33,36 @@
         <p>{{ receta.pasos | replace('\n', '<br>') | safe }}</p>
     </div>
 
+    <hr>
+<h4>Comentarios y Valoraciones</h4>
+
+{% if session['usuario_id'] %}
+<form action="{{ url_for('agregar_comentario', receta_id=receta.id) }}" method="POST" class="mb-4">
+    <div class="mb-3">
+        <label for="contenido" class="form-label">Tu comentario</label>
+        <textarea name="contenido" id="contenido" class="form-control" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="calificacion" class="form-label">Calificación (1-5)</label>
+        <input type="number" name="calificacion" id="calificacion" min="1" max="5" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar comentario</button>
+</form>
+{% else %}
+    <p>Inicia sesión para comentar.</p>
+{% endif %}
+
+<ul class="list-group">
+    {% for comentario in comentarios %}
+    <li class="list-group-item">
+        <strong>{{ comentario.usuario_nombre }}</strong> ({{ comentario.calificacion }}★)<br>
+        {{ comentario.contenido }}
+    </li>
+    {% else %}
+    <li class="list-group-item">No hay comentarios aún.</li>
+    {% endfor %}
+</ul>
+
+
 </body>
 </html>
