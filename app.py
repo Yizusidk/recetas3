@@ -356,6 +356,27 @@ def toggle_favorito(receta_id):
     return redirect(url_for('detalle_receta', receta_id=receta_id))
 
 
+@app.route('/favoritos')
+def ver_favoritos():
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    db = conectar_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT r.*
+        FROM recetas r
+        JOIN favoritos f ON r.id = f.receta_id
+        WHERE f.usuario_id = %s
+        ORDER BY f.id DESC
+    """, (session['usuario_id'],))
+
+    recetas_favoritas = cursor.fetchall()
+    db.close()
+
+    return render_template('favoritos.html', recetas=recetas_favoritas)
+
 
 
 if __name__ == '__main__':
