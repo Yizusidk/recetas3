@@ -447,7 +447,6 @@ def ver_perfil(usuario_id):
     db = conectar_db()
     cursor = db.cursor(dictionary=True)
 
-    # Obtener información del usuario
     cursor.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id,))
     usuario = cursor.fetchone()
 
@@ -455,7 +454,6 @@ def ver_perfil(usuario_id):
         db.close()
         return "Usuario no encontrado", 404
 
-    # Ver si el usuario actual sigue al perfil visitado
     es_seguido = False
     if 'usuario_id' in session:
         cursor.execute("""
@@ -464,17 +462,43 @@ def ver_perfil(usuario_id):
         """, (session['usuario_id'], usuario_id))
         es_seguido = cursor.fetchone() is not None
 
-    # Obtener recetas del usuario visitado
-    cursor.execute("SELECT * FROM recetas WHERE usuario_id = %s ORDER BY fecha DESC", (usuario_id,))
-    recetas = cursor.fetchall()
-
-    db.close()
-    return render_template('ver_perfil.html', usuario=usuario, recetas=recetas, es_seguido=es_seguido)
-
-
     db.close()
     return render_template('perfil.html', usuario=usuario, es_seguido=es_seguido)
 
+
+@app.route('/editar_receta/<int:receta_id>', methods=['GET', 'POST'])
+def editar_receta(receta_id):
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+
+    db = conectar_db()
+    cursor = db.cursor(dictionary=True)
+
+    # Obtener receta
+    cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
+    receta = cursor.fetchone()
+
+    if receta is None or receta['usuario_id'] != session['usuario_id']:
+        db.close()
+        return "No tienes permiso para editar esta receta", 403
+
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        ingredientes = request.form['ingredientes']
+        pasos = request.form['pasos']
+        categoria = request.form['categoria']
+
+        cursor.execute("""
+            UPDATE recetas
+            SET titulo = %s, ingredientes = %s, pasos = %s, categoria = %s
+            WHERE id = %s
+        """, (titulo, ingredientes, pasos, categoria, receta_id))
+        db.commit()
+        db.close()
+        return redirect(url_for('detalle_receta', receta_id=receta_id))
+
+    db.close()
+    return render_template('editar_receta.html', receta=receta)
 
 
 

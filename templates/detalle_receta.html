@@ -25,7 +25,12 @@
             </a>
         </p>
 
+        {% if session.get('usuario_id') == receta.usuario_id %}
+        <a href="{{ url_for('editar_receta', receta_id=receta.id) }}" class="btn btn-warning mt-3">Editar Receta</a>
+        {% endif %}
 
+
+        
         {% if session['usuario_id'] %}
 
 {% if session['usuario_id'] %}
