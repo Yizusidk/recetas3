@@ -7,7 +7,7 @@
 </head>
 <body class="bg-light">
     <div class="container mt-5">
-        <h2>Editar Receta</h2>
+        <h2 class="mb-4">Editar Receta</h2>
         <form method="POST">
             <div class="mb-3">
                 <label for="titulo" class="form-label">Título</label>
@@ -23,13 +23,9 @@
             </div>
             <div class="mb-3">
                 <label for="categoria" class="form-label">Categoría</label>
-            <select class="form-control" id="categoria" name="categoria" required>
-                {% for cat in categorias %}
-                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
-                {% endfor %}
-            </select>
+                <input type="text" class="form-control" name="categoria" id="categoria" value="{{ receta.categoria }}" required>
             </div>
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
             <a href="{{ url_for('detalle_receta', receta_id=receta.id) }}" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
