@@ -19,12 +19,7 @@
 
         <h1 class="mb-3">{{ receta.titulo }}</h1>
 
-        <p>Publicado por: 
-  <a href="{{ url_for('ver_perfil', usuario_id=autor['id']) }}">
-    {{ autor['nombre'] }}
-  </a>
-</p>
-
+        
 
         {% if session['usuario_id'] %}
 
