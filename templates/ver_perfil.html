@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil de {{ usuario.nombre }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f1f1f1;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 120px;
+      background-color: white;
+      padding-top: 80px;
+    }
+    .sidebar button {
+      width: 100%;
+      border: none;
+      background: none;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .topbar {
+      margin-left: 120px;
+      padding: 20px;
+    }
+    .profile-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar text-center">
+    <button>
+      <img src="https://i.pinimg.com/474x/5d/fb/70/5dfb70fe26266074c99911272330eb03.jpg" alt="logo" width="80"><br>
+      <span style="font-weight: bold; font-family: 'Georgia', serif;">FOODILIK</span>
+    </button>
+    <hr>
+    <button><a href="{{ url_for('index') }}">Inicio</a></button>
+    <button><a href="{{ url_for('dashboard') }}">Colección</a></button>
+    <button><a href="{{ url_for('estadisticas') }}">Estadísticas</a></button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="topbar">
+    <div class="profile-card">
+      <h3>Perfil de {{ usuario.nombre }}</h3>
+      <p><strong>Email:</strong> {{ usuario.email }}</p>
+
+      {% if session.get('usuario_id') != usuario.id %}
+        {% if es_seguido %}
+          <form action="{{ url_for('dejar_de_seguir', seguido_id=usuario.id) }}" method="post">
+            <button type="submit" class="btn btn-danger">Dejar de seguir</button>
+          </form>
+        {% else %}
+          <form action="{{ url_for('seguir_usuario', seguido_id=usuario.id) }}" method="post">
+            <button type="submit" class="btn btn-success">Seguir</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="profile-card">
+      <h4>Recetas publicadas</h4>
+      <div class="row">
+        {% for receta in recetas %}
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <img src="{{ url_for('static', filename='uploads/' + receta.imagen) }}" class="card-img-top" alt="Receta" onerror="this.src='https://via.placeholder.com/300x200?text=Sin+imagen';">
+            <div class="card-body">
+              <h5 class="card-title">{{ receta.titulo }}</h5>
+              <a href="{{ url_for('detalle_receta', receta_id=receta.id) }}" class="btn btn-primary btn-sm">Ver receta</a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <p>Este usuario aún no ha publicado recetas.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
