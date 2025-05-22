@@ -23,7 +23,11 @@
             </div>
             <div class="mb-3">
                 <label for="categoria" class="form-label">Categoría</label>
-                <input type="text" class="form-control" name="categoria" id="categoria" value="{{ receta.categoria }}" required>
+            <select class="form-control" id="categoria" name="categoria" required>
+                {% for cat in categorias %}
+                    <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
             </div>
             <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             <a href="{{ url_for('detalle_receta', receta_id=receta.id) }}" class="btn btn-secondary">Cancelar</a>
