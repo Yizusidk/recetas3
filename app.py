@@ -259,10 +259,13 @@ def detalle_receta(receta_id):
     # Obtener receta
     cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
     receta = cursor.fetchone()
-
     if receta is None:
         db.close()
         return "Receta no encontrada", 404
+
+    # Obtener autor de la receta
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (receta['usuario_id'],))
+    autor = cursor.fetchone()
 
     # Obtener comentarios con nombres de usuario
     cursor.execute("""
@@ -284,7 +287,7 @@ def detalle_receta(receta_id):
         es_favorita = cursor.fetchone() is not None
 
     db.close()
-    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios, es_favorita=es_favorita)
+    return render_template('detalle_receta.html', receta=receta, autor=autor, comentarios=comentarios, es_favorita=es_favorita)
 
 
 @app.route('/estadisticas')
