@@ -257,9 +257,9 @@ def detalle_receta(receta_id):
     cursor = db.cursor(dictionary=True)
 
     # Obtener receta
-    cursor.execute("SELECT nombre, id FROM usuarios WHERE id = %s", (receta['usuario_id'],))
-    autor = cursor.fetchone()
-    
+    cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
+    receta = cursor.fetchone()
+
     if receta is None:
         db.close()
         return "Receta no encontrada", 404
@@ -284,8 +284,7 @@ def detalle_receta(receta_id):
         es_favorita = cursor.fetchone() is not None
 
     db.close()
-    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios, es_favorita=es_favorita, autor=autor)
-
+    return render_template('detalle_receta.html', receta=receta, comentarios=comentarios, es_favorita=es_favorita)
 
 
 @app.route('/estadisticas')
