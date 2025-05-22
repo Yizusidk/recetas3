@@ -32,15 +32,12 @@
 
         
         {% if session['usuario_id'] %}
-
-{% if session['usuario_id'] %}
-<button id="btn-favorito" data-id="{{ receta.id }}" class="btn {% if es_favorita %}btn-warning{% else %}btn-outline-warning{% endif %}">
-    {% if es_favorita %}★ Quitar de favoritos{% else %}☆ Guardar en favoritos{% endif %}
-</button>
-{% endif %}
-
-
-{% endif %}
+        {% if session['usuario_id'] %}
+        <button id="btn-favorito" data-id="{{ receta.id }}" class="btn {% if es_favorita %}btn-warning{% else %}btn-outline-warning{% endif %}">
+            {% if es_favorita %}★ Quitar de favoritos{% else %}☆ Guardar en favoritos{% endif %}
+        </button>
+        {% endif %}
+        {% endif %}
 
 
         {% if receta['imagen'] %}
