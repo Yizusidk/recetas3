@@ -479,7 +479,7 @@ def editar_receta(receta_id):
     db = conectar_db()
     cursor = db.cursor(dictionary=True)
 
-    # Obtener receta
+    # Obtener la receta
     cursor.execute("SELECT * FROM recetas WHERE id = %s", (receta_id,))
     receta = cursor.fetchone()
 
@@ -488,22 +488,28 @@ def editar_receta(receta_id):
         return "No tienes permiso para editar esta receta", 403
 
     if request.method == 'POST':
-        titulo = request.form['titulo']
-        ingredientes = request.form['ingredientes']
-        pasos = request.form['pasos']
+        try:
+            titulo = request.form['titulo']
+            ingredientes = request.form['ingredientes']
+            pasos = request.form['pasos']
 
-        cursor.execute("""
+            cursor.execute("""
                 UPDATE recetas
                 SET titulo = %s, ingredientes = %s, pasos = %s
                 WHERE id = %s
-        """, (titulo, ingredientes, pasos, receta_id))
+            """, (titulo, ingredientes, pasos, receta_id))
 
-        db.commit()
-        db.close()
-        return redirect(url_for('detalle_receta', receta_id=receta_id))
+            db.commit()
+            db.close()
+            return redirect(url_for('detalle_receta', receta_id=receta_id))
+
+        except Exception as e:
+            db.close()
+            return f"Error al actualizar la receta: {str(e)}", 500
 
     db.close()
     return render_template('editar_receta.html', receta=receta)
+
 
 
 
