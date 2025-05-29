@@ -13,6 +13,9 @@ app = Flask(__name__)
 app.secret_key = 'clave_secreta'
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 
+
+#la vuelta esa del email
+
 # Conexión a la base de datos con XAMPP
 def conectar_db():
     return mysql.connector.connect(
@@ -359,6 +362,7 @@ def toggle_favorito(receta_id):
             cursor.execute("INSERT INTO favoritos (usuario_id, receta_id) VALUES (%s, %s)", (usuario_id, receta_id))
             db.commit()
             estado = 'agregado'
+             
     except Exception as e:
         db.rollback()
         print("Error:", e)
@@ -410,6 +414,7 @@ def seguir_usuario(seguido_id):
             ON DUPLICATE KEY UPDATE fecha = CURRENT_TIMESTAMP
         """, (seguidor_id, seguido_id))
         db.commit()
+        
     except Exception as e:
         db.rollback()
         return f"Error al seguir: {e}", 500
@@ -486,13 +491,13 @@ def editar_receta(receta_id):
         titulo = request.form['titulo']
         ingredientes = request.form['ingredientes']
         pasos = request.form['pasos']
-        categoria = request.form['categoria']
+        categoria_id = int(request.form['categoria'])
 
         cursor.execute("""
             UPDATE recetas
-            SET titulo = %s, ingredientes = %s, pasos = %s, categoria = %s
+            SET titulo = %s, ingredientes = %s, pasos = %s, categoria_id = %s
             WHERE id = %s
-        """, (titulo, ingredientes, pasos, categoria, receta_id))
+        """, (titulo, ingredientes, pasos, categoria_id, receta_id))
         db.commit()
         db.close()
         return redirect(url_for('detalle_receta', receta_id=receta_id))
