@@ -511,27 +511,6 @@ def editar_receta(receta_id):
     return render_template('editar_receta.html', receta=receta)
 
 
-@app.route('/estadisticas')
-def estadisticas():
-    if 'usuario_id' not in session:
-        return redirect(url_for('login'))
-
-    db = conectar_db()
-    cursor = db.cursor(dictionary=True)
-
-    # Obtener todas las recetas del usuario con estadísticas
-    cursor.execute("""
-        SELECT 
-            r.id, r.titulo, r.visitas,
-            (SELECT ROUND(AVG(valoracion), 1) FROM valoraciones v WHERE v.receta_id = r.id) AS promedio_valoracion,
-            (SELECT COUNT(*) FROM comentarios c WHERE c.receta_id = r.id) AS total_comentarios
-        FROM recetas r
-        WHERE r.usuario_id = %s
-    """, (session['usuario_id'],))
-    
-    recetas = cursor.fetchall()
-    db.close()
-    return render_template('estadisticas.html', recetas=recetas)
 
 
 
