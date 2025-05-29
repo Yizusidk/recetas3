@@ -491,13 +491,13 @@ def editar_receta(receta_id):
         titulo = request.form['titulo']
         ingredientes = request.form['ingredientes']
         pasos = request.form['pasos']
-        categoria_id = int(request.form['categoria'])
 
         cursor.execute("""
-            UPDATE recetas
-            SET titulo = %s, ingredientes = %s, pasos = %s, categoria_id = %s
-            WHERE id = %s
-        """, (titulo, ingredientes, pasos, categoria_id, receta_id))
+                UPDATE recetas
+                SET titulo = %s, ingredientes = %s, pasos = %s
+                WHERE id = %s
+        """, (titulo, ingredientes, pasos, receta_id))
+
         db.commit()
         db.close()
         return redirect(url_for('detalle_receta', receta_id=receta_id))
